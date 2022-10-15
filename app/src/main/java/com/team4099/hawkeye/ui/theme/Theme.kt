@@ -1,4 +1,4 @@
-package com.github.plusparth.hawkeye.ui.theme
+package com.team4099.hawkeye.ui.theme
 
 import android.app.Activity
 import android.os.Build

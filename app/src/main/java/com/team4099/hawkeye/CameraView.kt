@@ -1,4 +1,4 @@
-package com.github.plusparth.hawkeye
+package com.team4099.hawkeye
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat

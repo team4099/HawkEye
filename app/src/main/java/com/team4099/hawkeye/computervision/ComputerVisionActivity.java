@@ -77,7 +77,9 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private static final String POSE_INFO_TEXT_FORMAT =
           "\n\tAprilTag ID: %d"
           + "\n\tAprilTag Best Pose Translation (1): %.2f m, %.2f m, %.2f m"
-          + "\n\tAprilTag Best Pose Translation (2): %.2f m, %.2f m, %.2f m";
+          + "\n\tAprilTag Best Pose Rotation (1): %.2f yaw, %.2f pitch, %.2f roll"
+          + "\n\tAprilTag Best Pose Translation (2): %.2f m, %.2f m, %.2f m"
+          + "\n\tAprilTag Best Pose Rotation (2): %.2f yaw, %.2f pitch, %.2f roll";
   private static String POSE_TEXT = "";
   private static final float RADIANS_TO_DEGREES = (float) (180 / Math.PI);
 
@@ -377,15 +379,27 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                     );
         processedImageBytesGrayscale = processedOutput.getFirst();
         ApriltagPose pose = processedOutput.getSecond();
+        double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
+        double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
+        double roll1 = Math.toDegrees(Math.atan2(pose.rotation_1[7], pose.rotation_1[8]));
+        double yaw2 = Math.toDegrees(Math.atan2(pose.rotation_2[3], pose.rotation_2[0]));
+        double pitch2 = Math.toDegrees(Math.atan2(-pose.rotation_2[6], Math.sqrt(Math.pow(pose.rotation_2[7],2) + Math.pow(pose.rotation_2[8],2))));
+        double roll2 = Math.toDegrees(Math.atan2(pose.rotation_2[7], pose.rotation_2[8]));
         POSE_TEXT = String.format(
                 POSE_INFO_TEXT_FORMAT,
                 pose.id,
                 pose.translationMeters_1[0],
                 pose.translationMeters_1[1],
                 pose.translationMeters_1[2],
+                yaw1,
+                pitch1,
+                roll1,
                 pose.translationMeters_2[0],
                 pose.translationMeters_2[1],
-                pose.translationMeters_2[2]
+                pose.translationMeters_2[2],
+                yaw2,
+                pitch2,
+                roll2
         );
       }
 

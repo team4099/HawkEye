@@ -11,6 +11,7 @@ android {
     defaultConfig {
         applicationId 'com.team4099.hawkeye'
         minSdk 24
+        minSdkVersion 24
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -52,6 +53,7 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+
 }
 
 dependencies {
@@ -69,6 +71,10 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.0.0'
+    implementation 'de.javagl:obj:0.2.1'
+    implementation 'com.google.android.material:material:1.1.0'
 
     // CameraX
     def camerax_version = "1.1.0"
@@ -78,5 +84,8 @@ dependencies {
 
     // Icons
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
+
+    // ARcore
+    implementation 'com.google.ar:core:1.33.0'
 
 }

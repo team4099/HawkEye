@@ -23,4 +23,6 @@ public class ApriltagNative {
                                             double blurSigma, int nthreads);
 
     public static native ArrayList<ApriltagDetection> apriltag_detect_yuv(byte[] src, int width, int height);
+
+    public static native ArrayList<ApriltagPose> getApriltagPoses(double tagSizeMeters, byte[] src, int width, int height, double fx, double fy, double cx, double cy);
 }

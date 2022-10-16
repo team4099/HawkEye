@@ -61,6 +61,9 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import edu.umich.eecs.april.apriltag.ApriltagPose;
+import kotlin.Pair;
+
 /** This is a simple example that demonstrates CPU image access with ARCore. */
 public class ComputerVisionActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
   private static final String TAG = ComputerVisionActivity.class.getSimpleName();
@@ -71,6 +74,11 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
           + "\n\tUnrotated Field of View: (%.2f˚, %.2f˚)"
           + "\n\tRender frame time: %.1f ms (%.0ffps)"
           + "\n\tCPU image frame time: %.1f ms (%.0ffps)";
+  private static final String POSE_INFO_TEXT_FORMAT =
+          "\n\tAprilTag ID: %d"
+          + "\n\tAprilTag Best Pose Translation (1): %.2f m, %.2f m, %.2f m"
+          + "\n\tAprilTag Best Pose Translation (2): %.2f m, %.2f m, %.2f m";
+  private static String POSE_TEXT = "";
   private static final float RADIANS_TO_DEGREES = (float) (180 / Math.PI);
 
   // This app demonstrates two approaches to obtaining image data accessible on CPU:
@@ -340,7 +348,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         }
 
         // Update the camera intrinsics' text.
-        runOnUiThread(() -> cameraIntrinsicsTextView.setText(getCameraIntrinsicsText(frame)));
+        runOnUiThread(() -> cameraIntrinsicsTextView.setText(getCameraIntrinsicsText(frame) + POSE_TEXT));
       } catch (Exception t) {
         // Avoid crashing the application due to unhandled exceptions.
         Log.e(TAG, "Exception on the OpenGL thread", t);
@@ -359,7 +367,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
-        processedImageBytesGrayscale =
+        Pair<ByteBuffer, ApriltagPose> processedOutput =
             aprilTagDetector.detect(
                 image.getWidth(),
                 image.getHeight(),
@@ -367,6 +375,18 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 image.getPlanes()[0].getBuffer(),
                     frame.getCamera().getImageIntrinsics()
                     );
+        processedImageBytesGrayscale = processedOutput.getFirst();
+        ApriltagPose pose = processedOutput.getSecond();
+        POSE_TEXT = String.format(
+                POSE_INFO_TEXT_FORMAT,
+                pose.id,
+                pose.translationMeters_1[0],
+                pose.translationMeters_1[1],
+                pose.translationMeters_1[2],
+                pose.translationMeters_2[0],
+                pose.translationMeters_2[1],
+                pose.translationMeters_2[2]
+        );
       }
 
       cpuImageRenderer.drawWithCpuImage(
@@ -397,10 +417,23 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in I8 format, got format " + image.format);
       }
 
-      ByteBuffer processedImageBytesGrayscale =
+      Pair<ByteBuffer, ApriltagPose> processedOutput =
           aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
                   frame.getCamera().getImageIntrinsics()
           );
+      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
+      ApriltagPose pose = processedOutput.getSecond();
+      POSE_TEXT = String.format(
+              POSE_INFO_TEXT_FORMAT,
+              pose.id,
+              pose.translationMeters_1[0],
+              pose.translationMeters_1[1],
+              pose.translationMeters_1[2],
+              pose.translationMeters_2[0],
+              pose.translationMeters_2[1],
+              pose.translationMeters_2[2]
+      );
+
 
       // You should always release frame buffer after using. Otherwise the next call to
       // submitFrame() may fail.

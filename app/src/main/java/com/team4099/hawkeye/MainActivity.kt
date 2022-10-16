@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.team4099.hawkeye.ui.theme.HawkEyeTheme
+import edu.umich.eecs.april.apriltag.ApriltagNative
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -43,6 +44,14 @@ class MainActivity : ComponentActivity() {
 
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        ApriltagNative.apriltag_init(
+            "tag36h11",
+            1,
+            2.0,
+            0.0,
+            4
+        )
     }
 
     private val requestPermissionLauncher = registerForActivityResult(

@@ -366,10 +366,10 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in YUV_420_888 format, got format " + image.getFormat());
       }
 
-      ByteBuffer processedImageBytesGrayscale = null;
+//      ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
-        Pair<ByteBuffer, ApriltagPose> processedOutput =
+        Pair<Integer, ApriltagPose> processedOutput =
             aprilTagDetector.detect(
                 image.getWidth(),
                 image.getHeight(),
@@ -377,7 +377,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 image.getPlanes()[0].getBuffer(),
                     frame.getCamera().getImageIntrinsics()
                     );
-        processedImageBytesGrayscale = processedOutput.getFirst();
+//        processedImageBytesGrayscale = processedOutput.getFirst();
         ApriltagPose pose = processedOutput.getSecond();
         double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
         double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
@@ -403,13 +403,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         );
       }
 
-      cpuImageRenderer.drawWithCpuImage(
-          frame,
-          image.getWidth(),
-          image.getHeight(),
-          processedImageBytesGrayscale,
-          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+//      cpuImageRenderer.drawWithCpuImage(
+//          frame,
+//          image.getWidth(),
+//          image.getHeight(),
+//          processedImageBytesGrayscale,
+//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();
@@ -431,11 +431,11 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in I8 format, got format " + image.format);
       }
 
-      Pair<ByteBuffer, ApriltagPose> processedOutput =
+      Pair<Integer, ApriltagPose> processedOutput =
           aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
                   frame.getCamera().getImageIntrinsics()
           );
-      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
+//      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
       ApriltagPose pose = processedOutput.getSecond();
       POSE_TEXT = String.format(
               POSE_INFO_TEXT_FORMAT,
@@ -453,13 +453,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       // submitFrame() may fail.
       textureReader.releaseFrame(gpuDownloadFrameBufferIndex);
 
-      cpuImageRenderer.drawWithCpuImage(
-          frame,
-          IMAGE_WIDTH,
-          IMAGE_HEIGHT,
-          processedImageBytesGrayscale,
-          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+//      cpuImageRenderer.drawWithCpuImage(
+//          frame,
+//          IMAGE_WIDTH,
+//          IMAGE_HEIGHT,
+//          processedImageBytesGrayscale,
+//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();

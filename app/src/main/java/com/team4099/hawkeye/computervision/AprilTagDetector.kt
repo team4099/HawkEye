@@ -46,14 +46,14 @@ class AprilTagDetector {
      * pixel. Number of bytes is width * height, row padding (if any) is removed.
      */
     @Synchronized
-    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): Pair<ByteBuffer, ApriltagPose> {
+    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): ApriltagPose {
         // Reallocate input byte array if its size is different from the required size.
         if (stride * height > inputPixels.size) {
             inputPixels = ByteArray(stride * height)
         }
 
         // Allocate a new output byte array.
-        val outputPixels = ByteArray(width * height)
+//        val outputPixels = ByteArray(width * height)
 
         // Copy input buffer into a java array for ease of access. This is not the most optimal
         // way to process an image, but used here for simplicity.
@@ -65,27 +65,27 @@ class AprilTagDetector {
         // be better to transfer the exact amount of image bytes to the destination bytes.
         input.get(inputPixels, 0, input.capacity())
 
-//        val poseOutput = ApriltagNative.getApriltagPoses(
-//            0.165,
-//            inputPixels,
-//            width,
-//            height,
-//            intrinsics.focalLength[0].toDouble(), //fx
-//            intrinsics.focalLength[1].toDouble(), //fy
-//            intrinsics.principalPoint[0].toDouble(), //cx
-//            intrinsics.principalPoint[1].toDouble() //cy
-//        )
+        val poseOutput = ApriltagNative.getApriltagPoses(
+            0.165,
+            inputPixels,
+            width,
+            height,
+            intrinsics.focalLength[0].toDouble(), //fx
+            intrinsics.focalLength[1].toDouble(), //fy
+            intrinsics.principalPoint[0].toDouble(), //cx
+            intrinsics.principalPoint[1].toDouble() //cy
+        )
 //        for (pose in poseOutput){
 //            Log.i("apriltag_output", pose.toString())
 //            println("++++++++")
 //        }
 //        println("----------")
 //        // Detect edges.
-//        if (poseOutput.size >= 1){
-//            return Pair(ByteBuffer.wrap(inputPixels), poseOutput[0])
-//        } else {
-            return Pair(ByteBuffer.wrap(inputPixels), ApriltagPose())
-//        }
+        if (poseOutput.size >= 1){
+            return poseOutput[0]
+        } else {
+            return ApriltagPose();
+        }
 
     }
 

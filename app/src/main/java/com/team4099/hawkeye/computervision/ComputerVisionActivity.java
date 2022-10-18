@@ -366,10 +366,10 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in YUV_420_888 format, got format " + image.getFormat());
       }
 
-      ByteBuffer processedImageBytesGrayscale = null;
+//      ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
-        Pair<ByteBuffer, ApriltagPose> processedOutput =
+        ApriltagPose pose =
             aprilTagDetector.detect(
                 image.getWidth(),
                 image.getHeight(),
@@ -377,8 +377,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 image.getPlanes()[0].getBuffer(),
                     frame.getCamera().getImageIntrinsics()
                     );
-        processedImageBytesGrayscale = processedOutput.getFirst();
-        ApriltagPose pose = processedOutput.getSecond();
         double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
         double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
         double roll1 = Math.toDegrees(Math.atan2(pose.rotation_1[7], pose.rotation_1[8]));
@@ -402,14 +400,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 roll2
         );
       }
-
-      cpuImageRenderer.drawWithCpuImage(
-          frame,
-          image.getWidth(),
-          image.getHeight(),
-          processedImageBytesGrayscale,
-          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+//      cpuImageRenderer.drawWithCpuImage(
+//          frame,
+//          image.getWidth(),
+//          image.getHeight(),
+//          image.getPlanes()[0].getBuffer(),
+//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();
@@ -421,7 +418,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   }
 
   /* Demonstrates how to access a CPU image using a download from GPU. */
-  private void renderProcessedImageGpuDownload(Frame frame) {
+  private void renderProcessedImageGpuDownload(Frame frame) throws NotYetAvailableException {
     // If there is a frame being requested previously, acquire the pixels and process it.
     if (gpuDownloadFrameBufferIndex >= 0) {
       TextureReaderImage image = textureReader.acquireFrame(gpuDownloadFrameBufferIndex);
@@ -431,12 +428,10 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in I8 format, got format " + image.format);
       }
 
-      Pair<ByteBuffer, ApriltagPose> processedOutput =
+      ApriltagPose pose =
           aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
                   frame.getCamera().getImageIntrinsics()
           );
-      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
-      ApriltagPose pose = processedOutput.getSecond();
       POSE_TEXT = String.format(
               POSE_INFO_TEXT_FORMAT,
               pose.id,
@@ -453,13 +448,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       // submitFrame() may fail.
       textureReader.releaseFrame(gpuDownloadFrameBufferIndex);
 
-      cpuImageRenderer.drawWithCpuImage(
-          frame,
-          IMAGE_WIDTH,
-          IMAGE_HEIGHT,
-          processedImageBytesGrayscale,
-          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+//      cpuImageRenderer.drawWithCpuImage(
+//          frame,
+//          IMAGE_WIDTH,
+//          IMAGE_HEIGHT,
+//          image.buffer,
+//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();

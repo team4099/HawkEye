@@ -16,6 +16,8 @@
 
 package com.team4099.hawkeye.computervision;
 
+import static com.team4099.lib.QuaternionKt.rotationMatrixToQuaternion;
+
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.opengl.GLES20;
@@ -53,7 +55,6 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -62,7 +63,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import edu.umich.eecs.april.apriltag.ApriltagPose;
-import kotlin.Pair;
+import kotlin.Triple;
 
 /** This is a simple example that demonstrates CPU image access with ARCore. */
 public class ComputerVisionActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
@@ -377,12 +378,22 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 image.getPlanes()[0].getBuffer(),
                     frame.getCamera().getImageIntrinsics()
                     );
-        double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
-        double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
-        double roll1 = Math.toDegrees(Math.atan2(pose.rotation_1[7], pose.rotation_1[8]));
-        double yaw2 = Math.toDegrees(Math.atan2(pose.rotation_2[3], pose.rotation_2[0]));
-        double pitch2 = Math.toDegrees(Math.atan2(-pose.rotation_2[6], Math.sqrt(Math.pow(pose.rotation_2[7],2) + Math.pow(pose.rotation_2[8],2))));
-        double roll2 = Math.toDegrees(Math.atan2(pose.rotation_2[7], pose.rotation_2[8]));
+        Triple<Double, Double, Double> angles1 = rotationMatrixToQuaternion(pose.rotation_1).getEulerAnglesDegrees();
+        double yaw1 = (double) angles1.getFirst();
+        double pitch1 = (double) angles1.getSecond();
+        double roll1 = (double) angles1.getThird();
+
+        Triple<Double, Double, Double> angles2 = rotationMatrixToQuaternion(pose.rotation_2).getEulerAnglesDegrees();
+        double yaw2 = (double) angles2.getFirst();
+        double pitch2 = (double) angles2.getSecond();
+        double roll2 = (double) angles2.getThird();
+
+//        double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
+//        double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
+//        double roll1 = Math.toDegrees(Math.atan2(pose.rotation_1[7], pose.rotation_1[8]));
+//        double yaw2 = Math.toDegrees(Math.atan2(pose.rotation_2[3], pose.rotation_2[0]));
+//        double pitch2 = Math.toDegrees(Math.atan2(-pose.rotation_2[6], Math.sqrt(Math.pow(pose.rotation_2[7],2) + Math.pow(pose.rotation_2[8],2))));
+//        double roll2 = Math.toDegrees(Math.atan2(pose.rotation_2[7], pose.rotation_2[8]));
         POSE_TEXT = String.format(
                 POSE_INFO_TEXT_FORMAT,
                 pose.id,

@@ -55,6 +55,7 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -63,6 +64,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import edu.umich.eecs.april.apriltag.ApriltagPose;
+import kotlin.Pair;
 import kotlin.Triple;
 
 /** This is a simple example that demonstrates CPU image access with ARCore. */
@@ -145,6 +147,8 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private Switch cvModeSwitch;
   private boolean isCVModeOn = true;
   private Switch focusModeSwitch;
+  private boolean isDisplayOn = false;
+  private Switch displayModeSwitch;
 
   private final FrameTimeHelper renderFrameTimeHelper = new FrameTimeHelper();
   private final FrameTimeHelper cpuImageFrameTimeHelper = new FrameTimeHelper();
@@ -160,6 +164,8 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     cvModeSwitch.setOnCheckedChangeListener(this::onCVModeChanged);
     focusModeSwitch = (Switch) findViewById(R.id.switch_focus_mode);
     focusModeSwitch.setOnCheckedChangeListener(this::onFocusModeChanged);
+    displayModeSwitch = (Switch) findViewById(R.id.switch_display);
+    displayModeSwitch.setOnCheckedChangeListener(this::isDisplayOnChanged);
 
     cpuImageDisplayRotationHelper = new CpuImageDisplayRotationHelper(/*context=*/ this);
 
@@ -367,10 +373,10 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
             "Expected image in YUV_420_888 format, got format " + image.getFormat());
       }
 
-//      ByteBuffer processedImageBytesGrayscale = null;
+      ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
-        ApriltagPose pose =
+        Pair<ByteBuffer, ApriltagPose> processedOutput =
             aprilTagDetector.detect(
                 image.getWidth(),
                 image.getHeight(),
@@ -378,6 +384,8 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 image.getPlanes()[0].getBuffer(),
                     frame.getCamera().getImageIntrinsics()
                     );
+        processedImageBytesGrayscale = processedOutput.getFirst();
+        ApriltagPose pose = processedOutput.getSecond();
         Triple<Double, Double, Double> angles1 = rotationMatrixToQuaternion(pose.rotation_1).getEulerAnglesDegrees();
         double yaw1 = (double) angles1.getFirst();
         double pitch1 = (double) angles1.getSecond();
@@ -388,12 +396,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         double pitch2 = (double) angles2.getSecond();
         double roll2 = (double) angles2.getThird();
 
-//        double yaw1 = Math.toDegrees(Math.atan2(pose.rotation_1[3], pose.rotation_1[0]));
-//        double pitch1 = Math.toDegrees(Math.atan2(-pose.rotation_1[6], Math.sqrt(Math.pow(pose.rotation_1[7],2) + Math.pow(pose.rotation_1[8],2))));
-//        double roll1 = Math.toDegrees(Math.atan2(pose.rotation_1[7], pose.rotation_1[8]));
-//        double yaw2 = Math.toDegrees(Math.atan2(pose.rotation_2[3], pose.rotation_2[0]));
-//        double pitch2 = Math.toDegrees(Math.atan2(-pose.rotation_2[6], Math.sqrt(Math.pow(pose.rotation_2[7],2) + Math.pow(pose.rotation_2[8],2))));
-//        double roll2 = Math.toDegrees(Math.atan2(pose.rotation_2[7], pose.rotation_2[8]));
         POSE_TEXT = String.format(
                 POSE_INFO_TEXT_FORMAT,
                 pose.id,
@@ -411,13 +413,16 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                 roll2
         );
       }
-//      cpuImageRenderer.drawWithCpuImage(
-//          frame,
-//          image.getWidth(),
-//          image.getHeight(),
-//          image.getPlanes()[0].getBuffer(),
-//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+      if (isDisplayOn){
+        cpuImageRenderer.drawWithCpuImage(
+                frame,
+                image.getWidth(),
+                image.getHeight(),
+                processedImageBytesGrayscale,
+                cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+                cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+      }
+
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();
@@ -438,11 +443,11 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         throw new IllegalArgumentException(
             "Expected image in I8 format, got format " + image.format);
       }
-
-      ApriltagPose pose =
-          aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
-                  frame.getCamera().getImageIntrinsics()
-          );
+      Pair<ByteBuffer, ApriltagPose> processedOutput =
+              aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
+                      frame.getCamera().getImageIntrinsics());
+      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
+      ApriltagPose pose = processedOutput.getSecond();
       POSE_TEXT = String.format(
               POSE_INFO_TEXT_FORMAT,
               pose.id,
@@ -459,13 +464,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       // submitFrame() may fail.
       textureReader.releaseFrame(gpuDownloadFrameBufferIndex);
 
-//      cpuImageRenderer.drawWithCpuImage(
-//          frame,
-//          IMAGE_WIDTH,
-//          IMAGE_HEIGHT,
-//          image.buffer,
-//          cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-//          cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
+      cpuImageRenderer.drawWithCpuImage(
+              frame,
+              IMAGE_WIDTH,
+              IMAGE_HEIGHT,
+              processedImageBytesGrayscale,
+              cpuImageDisplayRotationHelper.getViewportAspectRatio(),
+              cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
 
       // Measure frame time since last successful execution of drawWithCpuImage().
       cpuImageFrameTimeHelper.nextFrame();
@@ -514,6 +519,11 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radio_camera_configs);
     radioGroup.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
   }
+
+  private void isDisplayOnChanged(CompoundButton unusedButton, boolean isChecked) {
+    isDisplayOn = isChecked;
+  }
+
 
   private void onFocusModeChanged(CompoundButton unusedButton, boolean isChecked) {
     config.setFocusMode(isChecked ? Config.FocusMode.AUTO : Config.FocusMode.FIXED);

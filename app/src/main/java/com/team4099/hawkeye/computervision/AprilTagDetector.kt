@@ -46,7 +46,7 @@ class AprilTagDetector {
      * pixel. Number of bytes is width * height, row padding (if any) is removed.
      */
     @Synchronized
-    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): ApriltagPose {
+    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): Pair<ByteBuffer, ApriltagPose> {
         // Reallocate input byte array if its size is different from the required size.
         if (stride * height > inputPixels.size) {
             inputPixels = ByteArray(stride * height)
@@ -82,9 +82,9 @@ class AprilTagDetector {
 //        println("----------")
 //        // Detect edges.
         if (poseOutput.size >= 1){
-            return poseOutput[0]
+            return Pair(ByteBuffer.wrap(inputPixels),poseOutput[0])
         } else {
-            return ApriltagPose();
+            return Pair(ByteBuffer.wrap(inputPixels), ApriltagPose())
         }
 
     }

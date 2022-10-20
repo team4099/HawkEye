@@ -70,7 +70,19 @@
       android:text="@string/switch_focus_mode"
       android:textColor="#ffffff" />
 
-  <TextView
+    <Switch
+        android:id="@+id/switch_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/switch_cv_mode"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="1dp"
+        android:checked="false"
+        android:text="Display"
+        android:textColor="#ffffff" />
+
+    <TextView
       android:id="@+id/camera_intrinsics_view"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

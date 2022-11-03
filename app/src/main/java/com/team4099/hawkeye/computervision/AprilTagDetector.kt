@@ -53,7 +53,7 @@ class AprilTagDetector {
         }
 
         // Allocate a new output byte array.
-        val outputPixels = ByteArray(width * height)
+//        val outputPixels = ByteArray(width * height)
 
         // Copy input buffer into a java array for ease of access. This is not the most optimal
         // way to process an image, but used here for simplicity.
@@ -75,14 +75,14 @@ class AprilTagDetector {
             intrinsics.principalPoint[0].toDouble(), //cx
             intrinsics.principalPoint[1].toDouble() //cy
         )
-        for (pose in poseOutput){
-            Log.i("apriltag_output", pose.toString())
-            println("++++++++")
-        }
-        println("----------")
-        // Detect edges.
+//        for (pose in poseOutput){
+//            Log.i("apriltag_output", pose.toString())
+//            println("++++++++")
+//        }
+//        println("----------")
+//        // Detect edges.
         if (poseOutput.size >= 1){
-            return Pair(ByteBuffer.wrap(inputPixels), poseOutput[0])
+            return Pair(ByteBuffer.wrap(inputPixels),poseOutput[0])
         } else {
             return Pair(ByteBuffer.wrap(inputPixels), ApriltagPose())
         }

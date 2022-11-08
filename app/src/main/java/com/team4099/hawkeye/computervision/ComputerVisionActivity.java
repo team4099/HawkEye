@@ -16,7 +16,7 @@
 
 package com.team4099.hawkeye.computervision;
 
-import static com.team4099.lib.QuaternionKt.rotationMatrixToQuaternion;
+import static com.team4099.lib.geo.QuaternionKt.rotationMatrixToQuaternion;
 
 import android.graphics.ImageFormat;
 import android.media.Image;

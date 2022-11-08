@@ -1,4 +1,4 @@
-package com.team4099.lib
+package com.team4099.lib.geo
 
 data class Quaternion(val w: Double, val x: Double, val y: Double, val z: Double){
 

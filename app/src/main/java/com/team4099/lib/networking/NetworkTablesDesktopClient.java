@@ -1,21 +1,20 @@
-package com.team4099;
+package com.team4099.lib.networking;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class NetworkTablesDesktopClient {
+
     public static void main(String[] args) {
         new NetworkTablesDesktopClient().run();
     }
-
     public void run() {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
-        NetworkTable table = inst.getTable("datatable");
-        NetworkTableEntry xEntry = table.getEntry("x");
-        NetworkTableEntry yEntry = table.getEntry("y");
-//        inst.startClientTeam(TEAM);  // where TEAM=190, 294, etc, or use inst.startClient("hostname") or similar
-        inst.startDSClient();  // recommended if running on DS computer; this gets the robot IP from the DS
+        NetworkTable table = inst.getTable("FMSInfo");
+        NetworkTableEntry alertEntry = table.getEntry("dubs");
+        inst.startClient("localhost");
+        inst.startDSClient();
         while (true) {
             try {
                 Thread.sleep(1000);
@@ -23,9 +22,13 @@ public class NetworkTablesDesktopClient {
                 System.out.println("interrupted");
                 return;
             }
-            double x = xEntry.getDouble(0.0);
-            double y = yEntry.getDouble(0.0);
-            System.out.println("X: " + x + " Y: " + y);
+
+            System.out.println(alertEntry.isValid());
+            System.out.println(table.getKeys());
+            String[] x = alertEntry.getStringArray(new String[0]);
+            for (String a: x){
+                System.out.println(a);
+            }
         }
     }
 }

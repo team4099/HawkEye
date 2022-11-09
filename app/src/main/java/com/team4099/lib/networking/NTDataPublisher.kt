@@ -1,5 +1,6 @@
 package com.team4099.lib.networking
 
+import com.team4099.lib.HawkeyeResult
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableEntry
 
@@ -63,7 +64,18 @@ class NTDataPublisher(cameraNickname: String) {
         bestTargetPosY = updateCopy.getEntry("targetPixelsY");
     }
 
-    fun accept(){
+    fun accept(result: HawkeyeResult){
+        // TODO add rawbytes stuff https://github.com/PhotonVision/photonvision/blob/7b6afd545bf824328e9b7e054a2cf9d9f4a026f6/photon-core/src/main/java/org/photonvision/common/dataflow/networktables/NTDataPublisher.java#L171
+
+        latencyMillisEntry?.forceSetDouble(result.latencyMS)
+        hasTargetEntry?.forceSetBoolean(result.hasTargets)
+
+        if (result.hasTargets){
+            var bestTarget = result.targets[0]
+
+//            targetPitchEntry?.forceSetDouble(bestTarget)
+        }
+
 
     }
 

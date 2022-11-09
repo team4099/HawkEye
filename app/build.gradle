@@ -96,6 +96,9 @@ dependencies {
     // Add ntcore-java
     implementation "edu.wpi.first.ntcore:ntcore-java:2022.4.1"
 
+    // Add wpimath-java
+    implementation "edu.wpi.first.wpimath:wpimath-java:2023.1.1-beta-3"
+
     // Add wpiutil-java
     implementation "edu.wpi.first.wpiutil:wpiutil-java:2022.4.1"
 
@@ -106,6 +109,6 @@ dependencies {
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxx86-64"
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxraspbian"
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:osxx86-64"
-    implementation "edu.wpi.first.ntcore:ntcore-jni:2022.4.1:windowsx86-64"
+    implementation "edu.wpi.first.ntcore:ntcore-jni:2022.4.1:osxx86-64"
 
 }

@@ -23,6 +23,7 @@ import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.HardwarePropertiesManager;
 import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
@@ -76,7 +77,8 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
           + "\n\t%s Image Dimensions: (%d, %d)"
           + "\n\tUnrotated Field of View: (%.2f˚, %.2f˚)"
           + "\n\tRender frame time: %.1f ms (%.0ffps)"
-          + "\n\tCPU image frame time: %.1f ms (%.0ffps)";
+          + "\n\tCPU image frame time: %.1f ms (%.0ffps)"
+              + "\n\tCPU temperature (C): %d Celsius";
   private static final String POSE_INFO_TEXT_FORMAT =
           "\n\tAprilTag ID: %d"
           + "\n\tAprilTag Best Pose Translation (1): %.2f m, %.2f m, %.2f m"
@@ -664,6 +666,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         renderFrameTimeHelper.getSmoothedFrameTime(),
         renderFrameTimeHelper.getSmoothedFrameRate(),
         cpuImageFrameTimeHelper.getSmoothedFrameTime(),
-        cpuImageFrameTimeHelper.getSmoothedFrameRate());
+        cpuImageFrameTimeHelper.getSmoothedFrameRate(),
+        HardwarePropertiesManager.DEVICE_TEMPERATURE_CPU);
   }
 }

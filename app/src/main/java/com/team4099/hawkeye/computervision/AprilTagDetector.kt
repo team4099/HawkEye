@@ -28,7 +28,7 @@ class AprilTagDetector {
 
     init{
         ApriltagNative.apriltag_init(
-            "tag36h11",
+            "tag16h5",
             0,
             2.0,
             0.0,
@@ -66,7 +66,7 @@ class AprilTagDetector {
         input.get(inputPixels, 0, input.capacity())
 
         val poseOutput = ApriltagNative.getApriltagPoses(
-            0.165,
+            0.1524,
             inputPixels,
             width,
             height,

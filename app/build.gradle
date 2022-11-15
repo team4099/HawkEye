@@ -94,10 +94,10 @@ dependencies {
     implementation 'com.google.ar:core:1.33.0'
 
     // Add ntcore-java
-    implementation "edu.wpi.first.ntcore:ntcore-java:2023.1.1-beta-2"
+    implementation "edu.wpi.first.ntcore:ntcore-java:2023.1.1-beta-3"
 
     // Add wpiutil-java
-    implementation "edu.wpi.first.wpiutil:wpiutil-java:2023.1.1-beta-2"
+    implementation "edu.wpi.first.wpiutil:wpiutil-java:2023.1.1-beta-3"
 
     // Add ntcore-jni for runtime. We are adding all supported platforms
     // so that our application will work on all supported platforms.
@@ -105,7 +105,7 @@ dependencies {
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:windowsx86-64"
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxx86-64"
 //    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxraspbian"
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:osxx86-64"
-    implementation "edu.wpi.first.ntcore:ntcore-jni:2023.1.1-beta-2:linuxarm64"
+//    implementation "edu.wpi.first.ntcore:ntcore-jni:2022.4.1:osxx86-64"
+    implementation "edu.wpi.first.ntcore:ntcore-jni:2023.1.1-beta-3:linuxarm64"
 
 }

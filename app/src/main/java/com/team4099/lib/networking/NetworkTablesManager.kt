@@ -27,9 +27,7 @@ object NetworkTablesManager {
     private fun setClientMode(teamNumber: Int){
         ntInstance.stopServer()
 
-        ntInstance.startClient4("Hawkeye")
-        ntInstance.setServerTeam(teamNumber)
-        ntInstance.startDSClient()
+        ntInstance.startClient3("")
     }
 
     private fun setServerMode(){

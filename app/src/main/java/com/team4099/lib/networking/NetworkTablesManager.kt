@@ -1,11 +1,12 @@
 package com.team4099.lib.networking
 
+import android.util.Log
 import edu.wpi.first.networktables.NetworkTableInstance
 
-class NetworkTablesManager {
+object NetworkTablesManager {
     private val ntInstance = NetworkTableInstance.getDefault()
-    private val hawkeyeRootTableName = "/hawkeye"
-    val hawkeyeTable = ntInstance.getTable(hawkeyeRootTableName)
+    private val rootTableName = "/photonvision/"
+    val hawkeyeTable = ntInstance.getTable(rootTableName)
 
     private var isRetryingConnection = false
 
@@ -13,16 +14,6 @@ class NetworkTablesManager {
         TimedTaskManager.Singleton.instance.addTask("NTManager", this::ntTick, 5000);
     }
 
-    companion object {
-        val INSTANCE: NetworkTablesManager? = null
-            get(){
-                if (field == null){
-                    return NetworkTablesManager()
-                } else {
-                    return field
-                }
-            }
-    }
 
     fun setConfig(config: NetworkConfig){
         if (NetworkConfig.runNTServer){
@@ -36,7 +27,8 @@ class NetworkTablesManager {
     private fun setClientMode(teamNumber: Int){
         ntInstance.stopServer()
 
-        ntInstance.startClientTeam(teamNumber)
+        ntInstance.startClient4("Hawkeye")
+        ntInstance.setServerTeam(teamNumber)
         ntInstance.startDSClient()
     }
 
@@ -53,6 +45,7 @@ class NetworkTablesManager {
         }
         if (!ntInstance.isConnected && !isRetryingConnection) {
             isRetryingConnection = true
+            Log.e("NetworkTablesManager", "Could not connect to the robot! Will retry in the background...")
 //            logger.error(
 //                    "[NetworkTablesManager] Could not connect to the robot! Will retry in the background...")
         }

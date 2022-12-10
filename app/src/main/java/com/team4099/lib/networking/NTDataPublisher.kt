@@ -1,14 +1,15 @@
 package com.team4099.lib.networking
 
 import com.team4099.lib.HawkeyeResult
+import com.team4099.lib.photonvision.Packet
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableEntry
 
 class NTDataPublisher(cameraNickname: String) {
-    private val rootTable: NetworkTable = NetworkTablesManager.INSTANCE!!.hawkeyeTable
+    private val rootTable: NetworkTable = NetworkTablesManager.hawkeyeTable
     private var subTable: NetworkTable? = null
 
-    private var rawBytesEntry: NetworkTableEntry? = null //do I really want to implement this tho
+    private var rawBytesEntry: NetworkTableEntry? = null
 
     private var latencyMillisEntry: NetworkTableEntry? = null
     private var hasTargetEntry: NetworkTableEntry? = null
@@ -34,16 +35,16 @@ class NTDataPublisher(cameraNickname: String) {
     }
 
     private fun removeEntries() {
-        if (rawBytesEntry != null) rawBytesEntry!!.delete()
-        if (latencyMillisEntry != null) latencyMillisEntry!!.delete()
-        if (hasTargetEntry != null) hasTargetEntry!!.delete()
-        if (targetPitchEntry != null) targetPitchEntry!!.delete()
-        if (targetAreaEntry != null) targetAreaEntry!!.delete()
-        if (targetYawEntry != null) targetYawEntry!!.delete()
-        if (targetPoseEntry != null) targetPoseEntry!!.delete()
-        if (targetSkewEntry != null) targetSkewEntry!!.delete()
-        if (bestTargetPosX != null) bestTargetPosX!!.delete()
-        if (bestTargetPosY != null) bestTargetPosY!!.delete()
+        rawBytesEntry?.unpublish()
+        latencyMillisEntry?.unpublish()
+        hasTargetEntry?.unpublish()
+        targetPitchEntry?.unpublish()
+        targetAreaEntry?.unpublish()
+        targetYawEntry?.unpublish()
+        targetPoseEntry?.unpublish()
+        targetSkewEntry?.unpublish()
+        bestTargetPosX?.unpublish()
+        bestTargetPosY?.unpublish()
     }
 
     private fun updateEntries(){
@@ -65,18 +66,44 @@ class NTDataPublisher(cameraNickname: String) {
     }
 
     fun accept(result: HawkeyeResult){
-        // TODO add rawbytes stuff https://github.com/PhotonVision/photonvision/blob/7b6afd545bf824328e9b7e054a2cf9d9f4a026f6/photon-core/src/main/java/org/photonvision/common/dataflow/networktables/NTDataPublisher.java#L171
+        val packet = Packet(result.packetSize)
+        result.populatePacket(packet)
+        rawBytesEntry?.setRaw(packet.data)
 
-        latencyMillisEntry?.forceSetDouble(result.latencyMS)
-        hasTargetEntry?.forceSetBoolean(result.hasTargets)
+        latencyMillisEntry?.setDouble(result.latencyMS)
+        hasTargetEntry?.setBoolean(result.hasTargets)
 
-        if (result.hasTargets){
-            var bestTarget = result.targets[0]
-
-//            targetPitchEntry?.forceSetDouble(bestTarget)
+        if (result.hasTargets) {
+            val bestTarget = result.trackedTargets[0]
+            targetPitchEntry?.setDouble(bestTarget.pitch)
+            targetYawEntry?.setDouble(bestTarget.yaw)
+            targetAreaEntry?.setDouble(bestTarget.area)
+            targetSkewEntry?.setDouble(bestTarget.skew)
+            val pose = bestTarget.bestCameraToTarget
+            targetPoseEntry?.setDoubleArray(
+                doubleArrayOf(
+                    pose.translation.first, // x
+                    pose.translation.second, // y
+                    pose.translation.third, // z
+                    pose.quat.w,
+                    pose.quat.x,
+                    pose.quat.y,
+                    pose.quat.z
+                )
+            )
+            val targetOffsetPoint = bestTarget.center
+            bestTargetPosX?.setDouble(targetOffsetPoint.first)
+            bestTargetPosY?.setDouble(targetOffsetPoint.second)
+        } else {
+            targetPitchEntry?.setDouble(0.0)
+            targetYawEntry?.setDouble(0.0)
+            targetAreaEntry?.setDouble(0.0)
+            targetSkewEntry?.setDouble(0.0)
+            targetPoseEntry?.setDoubleArray(doubleArrayOf(0.0, 0.0, 0.0))
+            bestTargetPosX?.setDouble(0.0)
+            bestTargetPosY?.setDouble(0.0)
         }
-
-
+        rootTable.instance.flush()
     }
 
 

@@ -17,6 +17,7 @@ package com.team4099.hawkeye.computervision
 
 import android.util.Log
 import com.google.ar.core.CameraIntrinsics
+import com.team4099.lib.networking.HawkeyeConfig
 import edu.umich.eecs.april.apriltag.ApriltagNative
 import edu.umich.eecs.april.apriltag.ApriltagPose
 import kotlin.jvm.Synchronized
@@ -28,7 +29,7 @@ class AprilTagDetector {
 
     init{
         ApriltagNative.apriltag_init(
-            "tag36h11",
+            "tag16h5",
             0,
             2.0,
             0.0,
@@ -46,7 +47,7 @@ class AprilTagDetector {
      * pixel. Number of bytes is width * height, row padding (if any) is removed.
      */
     @Synchronized
-    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): Pair<ByteBuffer, ApriltagPose> {
+    fun detect(width: Int, height: Int, stride: Int, input: ByteBuffer, intrinsics: CameraIntrinsics): Pair<ByteBuffer, List<ApriltagPose>> {
         // Reallocate input byte array if its size is different from the required size.
         if (stride * height > inputPixels.size) {
             inputPixels = ByteArray(stride * height)
@@ -66,7 +67,7 @@ class AprilTagDetector {
         input.get(inputPixels, 0, input.capacity())
 
         val poseOutput = ApriltagNative.getApriltagPoses(
-            0.165,
+            HawkeyeConfig.tagSizeMeters,
             inputPixels,
             width,
             height,
@@ -81,11 +82,7 @@ class AprilTagDetector {
 //        }
 //        println("----------")
 //        // Detect edges.
-        if (poseOutput.size >= 1){
-            return Pair(ByteBuffer.wrap(inputPixels),poseOutput[0])
-        } else {
-            return Pair(ByteBuffer.wrap(inputPixels), ApriltagPose())
-        }
+        return Pair(ByteBuffer.wrap(inputPixels),poseOutput)
 
     }
 

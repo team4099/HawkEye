@@ -1,4 +1,4 @@
-package com.team4099.lib.networking
+package com.team4099.lib.photonvision.networking
 
 
 object HawkeyeConfig{

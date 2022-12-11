@@ -1,6 +1,5 @@
-package com.team4099.lib
+package com.team4099.lib.photonvision.networking
 
-import com.team4099.lib.photonvision.Packet
 import com.team4099.lib.photonvision.PhotonTrackedTarget
 import edu.umich.eecs.april.apriltag.ApriltagPose
 
@@ -11,7 +10,7 @@ class HawkeyeResult(val latencyMS: Double, targets: List<ApriltagPose>){
         trackedTargets = targets.map { PhotonTrackedTarget(it) }
     }
 
-    fun populatePacket(packet: Packet): Packet{
+    fun populatePacket(packet: Packet): Packet {
         packet.encode(latencyMS)
         packet.encode(trackedTargets.size.toByte())
         for (target in trackedTargets){

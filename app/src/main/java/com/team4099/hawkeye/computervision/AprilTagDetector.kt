@@ -17,7 +17,7 @@ package com.team4099.hawkeye.computervision
 
 import android.util.Log
 import com.google.ar.core.CameraIntrinsics
-import com.team4099.lib.networking.HawkeyeConfig
+import com.team4099.lib.photonvision.networking.HawkeyeConfig
 import edu.umich.eecs.april.apriltag.ApriltagNative
 import edu.umich.eecs.april.apriltag.ApriltagPose
 import kotlin.jvm.Synchronized

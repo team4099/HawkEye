@@ -1,4 +1,4 @@
-package com.team4099.lib.photonvision;
+package com.team4099.lib.photonvision.networking;
 
 public class Packet {
     // Size of the packet.

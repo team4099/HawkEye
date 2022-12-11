@@ -13,7 +13,7 @@ object NetworkTablesManager {
 
     init{
         TimedTaskManager.Singleton.instance.addTask("NTManager", this::ntTick, 5000);
-        ntInstance.startClient3(HawkeyeConfig.cameraName);
+        ntInstance.startClient4(HawkeyeConfig.cameraName);
         if (HawkeyeConfig.staticIp != null){
             ntInstance.setServer(HawkeyeConfig.staticIp)
         } else {
@@ -31,7 +31,7 @@ object NetworkTablesManager {
 //            logger.error(
 //                    "[NetworkTablesManager] Could not connect to the robot! Will retry in the background...")
         }
-        Log.i("NetworkTablesManager", "Connected: " + ntInstance.isConnected)
+        Log.i("NetworkTablesManager", "Connected to NetworkTables: " + ntInstance.isConnected)
     }
 
 

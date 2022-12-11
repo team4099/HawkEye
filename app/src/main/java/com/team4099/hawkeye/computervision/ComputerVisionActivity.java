@@ -16,8 +16,6 @@
 
 package com.team4099.hawkeye.computervision;
 
-import static com.team4099.lib.QuaternionKt.rotationMatrixToQuaternion;
-
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.opengl.GLES20;
@@ -54,6 +52,10 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.team4099.lib.HawkeyeResult;
+import com.team4099.lib.networking.NTDataPublisher;
+import com.team4099.lib.networking.HawkeyeConfig;
+import com.team4099.lib.networking.NetworkTablesManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -66,7 +68,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 import edu.umich.eecs.april.apriltag.ApriltagPose;
 import kotlin.Pair;
-import kotlin.Triple;
 
 /** This is a simple example that demonstrates CPU image access with ARCore. */
 public class ComputerVisionActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
@@ -155,6 +156,9 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private final FrameTimeHelper renderFrameTimeHelper = new FrameTimeHelper();
   private final FrameTimeHelper cpuImageFrameTimeHelper = new FrameTimeHelper();
 
+  private NetworkTablesManager ntManager;
+  private NTDataPublisher ntPublisher;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -183,6 +187,11 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     getLifecycle().addObserver(cpuImageFrameTimeHelper);
 
     installRequested = false;
+
+    this.ntManager = NetworkTablesManager.INSTANCE;
+
+    // TODO add a settings thing to control name
+    this.ntPublisher = new NTDataPublisher(HawkeyeConfig.INSTANCE.getCameraName());
   }
 
   @Override
@@ -378,7 +387,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
-        Pair<ByteBuffer, ApriltagPose> processedOutput =
+        Pair<ByteBuffer, List<ApriltagPose>> processedOutput =
             aprilTagDetector.detect(
                 image.getWidth(),
                 image.getHeight(),
@@ -387,33 +396,8 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                     frame.getCamera().getImageIntrinsics()
                     );
         processedImageBytesGrayscale = processedOutput.getFirst();
-        ApriltagPose pose = processedOutput.getSecond();
-        Triple<Double, Double, Double> angles1 = rotationMatrixToQuaternion(pose.rotation_1).getEulerAnglesDegrees();
-        double yaw1 = (double) angles1.getFirst();
-        double pitch1 = (double) angles1.getSecond();
-        double roll1 = (double) angles1.getThird();
 
-        Triple<Double, Double, Double> angles2 = rotationMatrixToQuaternion(pose.rotation_2).getEulerAnglesDegrees();
-        double yaw2 = (double) angles2.getFirst();
-        double pitch2 = (double) angles2.getSecond();
-        double roll2 = (double) angles2.getThird();
-
-        POSE_TEXT = String.format(
-                POSE_INFO_TEXT_FORMAT,
-                pose.id,
-                pose.translationMeters_1[0],
-                pose.translationMeters_1[1],
-                pose.translationMeters_1[2],
-                yaw1,
-                pitch1,
-                roll1,
-                pose.translationMeters_2[0],
-                pose.translationMeters_2[1],
-                pose.translationMeters_2[2],
-                yaw2,
-                pitch2,
-                roll2
-        );
+        ntPublisher.accept(new HawkeyeResult((System.nanoTime() - frame.getTimestamp())/(1E6), processedOutput.getSecond()));
       }
       if (isDisplayOn){
         cpuImageRenderer.drawWithCpuImage(
@@ -445,23 +429,24 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
         throw new IllegalArgumentException(
             "Expected image in I8 format, got format " + image.format);
       }
-      Pair<ByteBuffer, ApriltagPose> processedOutput =
+      Pair<ByteBuffer, List<ApriltagPose>> processedOutput =
               aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
                       frame.getCamera().getImageIntrinsics());
       ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
-      ApriltagPose pose = processedOutput.getSecond();
-      POSE_TEXT = String.format(
-              POSE_INFO_TEXT_FORMAT,
-              pose.id,
-              pose.translationMeters_1[0],
-              pose.translationMeters_1[1],
-              pose.translationMeters_1[2],
-              pose.translationMeters_2[0],
-              pose.translationMeters_2[1],
-              pose.translationMeters_2[2]
-      );
+//      ApriltagPose pose = processedOutput.getSecond();
+//      POSE_TEXT = String.format(
+//              POSE_INFO_TEXT_FORMAT,
+//              pose.id,
+//              pose.translationMeters_1[0],
+//              pose.translationMeters_1[1],
+//              pose.translationMeters_1[2],
+//              pose.translationMeters_2[0],
+//              pose.translationMeters_2[1],
+//              pose.translationMeters_2[2]
+//      );
 
 
+      ntPublisher.accept(new HawkeyeResult((System.nanoTime() - frame.getTimestamp())/(1E6), processedOutput.getSecond()));
       // You should always release frame buffer after using. Otherwise the next call to
       // submitFrame() may fail.
       textureReader.releaseFrame(gpuDownloadFrameBufferIndex);

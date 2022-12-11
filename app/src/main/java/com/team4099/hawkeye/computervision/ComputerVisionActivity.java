@@ -16,8 +16,6 @@
 
 package com.team4099.hawkeye.computervision;
 
-import static com.team4099.lib.geo.QuaternionKt.rotationMatrixToQuaternion;
-
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.opengl.GLES20;
@@ -54,8 +52,8 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.team4099.lib.HawkeyeResult;
-import com.team4099.lib.geo.Quaternion;
 import com.team4099.lib.networking.NTDataPublisher;
+import com.team4099.lib.networking.HawkeyeConfig;
 import com.team4099.lib.networking.NetworkTablesManager;
 
 import java.io.IOException;
@@ -69,7 +67,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 import edu.umich.eecs.april.apriltag.ApriltagPose;
 import kotlin.Pair;
-import kotlin.Triple;
 
 /** This is a simple example that demonstrates CPU image access with ARCore. */
 public class ComputerVisionActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
@@ -192,7 +189,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     this.ntManager = NetworkTablesManager.INSTANCE;
 
     // TODO add a settings thing to control name
-    this.ntPublisher = new NTDataPublisher("hawkeye");
+    this.ntPublisher = new NTDataPublisher(HawkeyeConfig.INSTANCE.getCameraName());
   }
 
   @Override
@@ -397,24 +394,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                     frame.getCamera().getImageIntrinsics()
                     );
         processedImageBytesGrayscale = processedOutput.getFirst();
-//        ApriltagPose pose = processedOutput.getSecond().get(0);
-
-//        POSE_TEXT = String.format(
-//                POSE_INFO_TEXT_FORMAT,
-//                pose.id,
-//                pose.translationMeters_1[0],
-//                pose.translationMeters_1[1],
-//                pose.translationMeters_1[2],
-//                yaw1,
-//                pitch1,
-//                roll1,
-//                pose.translationMeters_2[0],
-//                pose.translationMeters_2[1],
-//                pose.translationMeters_2[2],
-//                yaw2,
-//                pitch2,
-//                roll2
-//        );
 
         ntPublisher.accept(new HawkeyeResult((System.nanoTime() - frame.getTimestamp())/(1E6), processedOutput.getSecond()));
       }

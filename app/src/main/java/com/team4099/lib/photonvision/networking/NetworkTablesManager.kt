@@ -8,7 +8,6 @@ object NetworkTablesManager {
     private val rootTableName = "/photonvision/"
     val hawkeyeTable = ntInstance.getTable(rootTableName)
 
-
     private var isRetryingConnection = false
 
     init{

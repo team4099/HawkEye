@@ -4,8 +4,8 @@ package com.team4099.lib.networking
 object NetworkConfig{
         var teamNumber: Int = -1337
         //    var connectionType: NetworkMode = NetworkMode.DHCP
-        var staticIp: String? = null
-        var hostname: String? = null
+        var staticIp: String? = "10.0.2.2"
+        var cameraName: String = "hawkeye"
         var runNTServer: Boolean = false
         var shouldManage: Boolean = false
 

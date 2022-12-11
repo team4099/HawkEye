@@ -67,6 +67,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import edu.umich.eecs.april.apriltag.ApriltagPose;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import kotlin.Pair;
 
 /** This is a simple example that demonstrates CPU image access with ARCore. */
@@ -371,15 +372,18 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
 
   /* Demonstrates how to access a CPU image directly from ARCore. */
   private void renderProcessedImageCpuDirectAccess(Frame frame) {
+    long startTime = NetworkTablesJNI.now();
     try (Image image = frame.acquireCameraImage()) {
       if (image.getFormat() != ImageFormat.YUV_420_888) {
         throw new IllegalArgumentException(
             "Expected image in YUV_420_888 format, got format " + image.getFormat());
       }
 
+
       ByteBuffer processedImageBytesGrayscale = null;
       // Do not process the image with edge dectection algorithm if it is not being displayed.
       if (isCVModeOn) {
+
         Pair<ByteBuffer, List<ApriltagPose>> processedOutput =
             aprilTagDetector.detect(
                 image.getWidth(),
@@ -390,7 +394,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                     );
         processedImageBytesGrayscale = processedOutput.getFirst();
 
-        ntPublisher.accept(new HawkeyeResult((System.nanoTime() - frame.getTimestamp())/(1E6), processedOutput.getSecond()));
+        ntPublisher.accept(new HawkeyeResult((double) (NetworkTablesJNI.now() - startTime)/(1E3), processedOutput.getSecond()));
       }
       if (isDisplayOn){
         cpuImageRenderer.drawWithCpuImage(

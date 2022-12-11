@@ -52,10 +52,10 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
-import com.team4099.lib.HawkeyeResult;
-import com.team4099.lib.networking.NTDataPublisher;
-import com.team4099.lib.networking.HawkeyeConfig;
-import com.team4099.lib.networking.NetworkTablesManager;
+import com.team4099.lib.photonvision.networking.HawkeyeResult;
+import com.team4099.lib.photonvision.networking.NTDataPublisher;
+import com.team4099.lib.photonvision.networking.HawkeyeConfig;
+import com.team4099.lib.photonvision.networking.NetworkTablesManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -358,14 +358,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
 
         renderFrameTimeHelper.nextFrame();
 
-        switch (imageAcquisitionPath) {
-          case CPU_DIRECT_ACCESS:
-            renderProcessedImageCpuDirectAccess(frame);
-            break;
-          case GPU_DOWNLOAD:
-            renderProcessedImageGpuDownload(frame);
-            break;
-        }
+        renderProcessedImageCpuDirectAccess(frame);
 
         // Update the camera intrinsics' text.
         runOnUiThread(() -> cameraIntrinsicsTextView.setText(getCameraIntrinsicsText(frame) + POSE_TEXT));
@@ -417,57 +410,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
       // will handle null image properly, and will just render the background.
       cpuImageRenderer.drawWithoutCpuImage();
     }
-  }
-
-  /* Demonstrates how to access a CPU image using a download from GPU. */
-  private void renderProcessedImageGpuDownload(Frame frame) throws NotYetAvailableException {
-    // If there is a frame being requested previously, acquire the pixels and process it.
-    if (gpuDownloadFrameBufferIndex >= 0) {
-      TextureReaderImage image = textureReader.acquireFrame(gpuDownloadFrameBufferIndex);
-
-      if (image.format != TextureReaderImage.IMAGE_FORMAT_I8) {
-        throw new IllegalArgumentException(
-            "Expected image in I8 format, got format " + image.format);
-      }
-      Pair<ByteBuffer, List<ApriltagPose>> processedOutput =
-              aprilTagDetector.detect(image.width, image.height, /* stride= */ image.width, image.buffer,
-                      frame.getCamera().getImageIntrinsics());
-      ByteBuffer processedImageBytesGrayscale = processedOutput.getFirst();
-//      ApriltagPose pose = processedOutput.getSecond();
-//      POSE_TEXT = String.format(
-//              POSE_INFO_TEXT_FORMAT,
-//              pose.id,
-//              pose.translationMeters_1[0],
-//              pose.translationMeters_1[1],
-//              pose.translationMeters_1[2],
-//              pose.translationMeters_2[0],
-//              pose.translationMeters_2[1],
-//              pose.translationMeters_2[2]
-//      );
-
-
-      ntPublisher.accept(new HawkeyeResult((System.nanoTime() - frame.getTimestamp())/(1E6), processedOutput.getSecond()));
-      // You should always release frame buffer after using. Otherwise the next call to
-      // submitFrame() may fail.
-      textureReader.releaseFrame(gpuDownloadFrameBufferIndex);
-
-      cpuImageRenderer.drawWithCpuImage(
-              frame,
-              IMAGE_WIDTH,
-              IMAGE_HEIGHT,
-              processedImageBytesGrayscale,
-              cpuImageDisplayRotationHelper.getViewportAspectRatio(),
-              cpuImageDisplayRotationHelper.getCameraToDisplayRotation());
-
-      // Measure frame time since last successful execution of drawWithCpuImage().
-      cpuImageFrameTimeHelper.nextFrame();
-    } else {
-      cpuImageRenderer.drawWithoutCpuImage();
-    }
-
-    // Submit request for the texture from the current frame.
-    gpuDownloadFrameBufferIndex =
-        textureReader.submitFrame(cpuImageRenderer.getTextureId(), TEXTURE_WIDTH, TEXTURE_HEIGHT);
   }
 
   public void onLowResolutionRadioButtonClicked(View view) {

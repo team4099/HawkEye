@@ -1,7 +1,5 @@
-package com.team4099.lib.networking
+package com.team4099.lib.photonvision.networking
 
-import com.team4099.lib.HawkeyeResult
-import com.team4099.lib.photonvision.Packet
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableEntry
 

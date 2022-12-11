@@ -1,3 +1,6 @@
 [submodule "app/src/main/apriltag"]
 	path = app/src/main/apriltag
 	url = https://github.com/team4099/apriltag.git
+[submodule "app/src/main/allwpilib"]
+	path = app/src/main/allwpilib
+	url = https://github.com/team4099/allwpilib.git

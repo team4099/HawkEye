@@ -16,7 +16,7 @@ class PhotonTrackedTarget {
     val skew: Double
 
     /** Get the Fiducial ID, or -1 if not set.  */
-    val fiducialId: Double
+    val fiducialId: Int
 
     /**
      * Get the transform that maps camera space (X = forward, Y = left, Z = up) to object/fiducial tag
@@ -53,7 +53,7 @@ class PhotonTrackedTarget {
         pitch: Double,
         area: Double,
         skew: Double,
-        id: Double,
+        id: Int,
         pose: Transform3d,
         altPose: Transform3d,
         ambiguity: Double,
@@ -81,7 +81,7 @@ class PhotonTrackedTarget {
         this.pitch = bestPoseQuat.pitchRad
         this.area = 0.0
         this.skew = 0.0
-        this.fiducialId = pose.id.toDouble()
+        this.fiducialId = pose.id
         this.bestCameraToTarget = Transform3d(Triple(
             pose.translationMeters_1[0],
             pose.translationMeters_1[1],

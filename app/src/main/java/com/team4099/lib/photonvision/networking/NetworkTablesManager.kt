@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.NetworkTableInstance
 
 object NetworkTablesManager {
     private val ntInstance = NetworkTableInstance.getDefault()
-    private val rootTableName = "/photonvision/"
+    private val rootTableName = "/photonvision"
     val hawkeyeTable = ntInstance.getTable(rootTableName)
 
     private var isRetryingConnection = false

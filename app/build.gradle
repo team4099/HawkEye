@@ -71,6 +71,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.0.0-alpha02'
     implementation 'androidx.camera:camera-core:1.1.0'
     implementation files('wpilib/ntcore.jar')
+    implementation files('wpilib/wpimath.jar')
     implementation files('wpilib/wpinet.jar')
     implementation files('wpilib/wpiutil.jar')
     testImplementation 'junit:junit:4.13.2'

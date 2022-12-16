@@ -165,7 +165,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    setContentView(R.layout.activity_main);
     surfaceView = findViewById(R.id.surfaceview);
     cameraIntrinsicsTextView = findViewById(R.id.camera_intrinsics_view);
     surfaceView = findViewById(R.id.surfaceview);

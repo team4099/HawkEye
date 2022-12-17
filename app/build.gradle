@@ -70,6 +70,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-alpha02'
     implementation 'androidx.camera:camera-core:1.1.0'
+    implementation "org.ejml:simple:0.30"
     implementation files('wpilib/ntcore.jar')
     implementation files('wpilib/wpimath.jar')
     implementation files('wpilib/wpinet.jar')

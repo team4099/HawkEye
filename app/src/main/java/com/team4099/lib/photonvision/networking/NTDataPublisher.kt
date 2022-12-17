@@ -80,13 +80,13 @@ class NTDataPublisher(cameraNickname: String) {
             val pose = bestTarget.bestCameraToTarget
             targetPoseEntry?.setDoubleArray(
                 doubleArrayOf(
-                    pose.translation.first, // x
-                    pose.translation.second, // y
-                    pose.translation.third, // z
-                    pose.quat.w,
-                    pose.quat.x,
-                    pose.quat.y,
-                    pose.quat.z
+                    pose.translation.x, // x
+                    pose.translation.y, // y
+                    pose.translation.z, // z
+                    pose.rotation.quaternion.w,
+                    pose.rotation.quaternion.x,
+                    pose.rotation.quaternion.y,
+                    pose.rotation.quaternion.z
                 )
             )
             val targetOffsetPoint = bestTarget.center

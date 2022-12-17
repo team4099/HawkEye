@@ -1,9 +1,11 @@
 package com.team4099.lib.photonvision
 
-import com.team4099.lib.geo.rotationMatrixToQuaternion
-import com.team4099.lib.geo.Transform3d
+import com.team4099.lib.geo.MathUtils
 import com.team4099.lib.photonvision.networking.Packet
 import edu.umich.eecs.april.apriltag.ApriltagPose
+import edu.wpi.first.math.geometry.Rotation3d
+import edu.wpi.first.math.geometry.Transform3d
+import edu.wpi.first.math.geometry.Translation3d
 import java.util.*
 
 class PhotonTrackedTarget {
@@ -22,13 +24,13 @@ class PhotonTrackedTarget {
      * Get the transform that maps camera space (X = forward, Y = left, Z = up) to object/fiducial tag
      * space (X forward, Y left, Z up) with the lowest reprojection error
      */
-    val bestCameraToTarget: Transform3d
+    var bestCameraToTarget: Transform3d
 
     /**
      * Get the transform that maps camera space (X = forward, Y = left, Z = up) to object/fiducial tag
      * space (X forward, Y left, Z up) with the highest reprojection error
      */
-    val alternateCameraToTarget: Transform3d
+    var alternateCameraToTarget: Transform3d
 
     /**
      * Get the ratio of pose reprojection errors, called ambiguity. Numbers above 0.2 are likely to be
@@ -75,24 +77,25 @@ class PhotonTrackedTarget {
 
     constructor(pose: ApriltagPose) {
         assert(pose.corners.size == 8)
-        val bestPoseQuat = rotationMatrixToQuaternion(pose.rotation_1)
-        val altPoseQuat = rotationMatrixToQuaternion(pose.rotation_2)
-        this.yaw = bestPoseQuat.yawRad
-        this.pitch = bestPoseQuat.pitchRad
+        val bestPoseQuat = MathUtils.rotationMatrixToQuaternion(pose.rotation_1)
+        val altPoseQuat = MathUtils.rotationMatrixToQuaternion(pose.rotation_2)
+        this.yaw = 0.0
+        this.pitch = 0.0
         this.area = 0.0
         this.skew = 0.0
         this.fiducialId = pose.id
-        this.bestCameraToTarget = Transform3d(Triple(
+        this.bestCameraToTarget = Transform3d(Translation3d(
             pose.translationMeters_1[0],
             pose.translationMeters_1[1],
             pose.translationMeters_1[2]),
-            bestPoseQuat
+            Rotation3d(bestPoseQuat)
             )
-        this.alternateCameraToTarget = Transform3d(Triple(
+        this.alternateCameraToTarget = Transform3d(
+            Translation3d(
             pose.translationMeters_2[0],
             pose.translationMeters_2[1],
             pose.translationMeters_2[2]),
-            altPoseQuat
+            Rotation3d(altPoseQuat)
         )
         val m_corners = mutableListOf<TargetCorner>()
         for (i in 0 until 8 step 2){
@@ -166,26 +169,14 @@ class PhotonTrackedTarget {
     companion object {
         const val PACK_SIZE_BYTES = java.lang.Double.BYTES * (5 + 7 + 2 * 4 + 1 + 7)
 
-        //    private static Transform3d decodeTransform(Packet packet) {
-        //        double x = packet.decodeDouble();
-        //        double y = packet.decodeDouble();
-        //        double z = packet.decodeDouble();
-        //        Translation3d translation = new Translation3d(x, y, z);
-        //        double w = packet.decodeDouble();
-        //        x = packet.decodeDouble();
-        //        y = packet.decodeDouble();
-        //        z = packet.decodeDouble();
-        //        Rotation3d rotation = new Rotation3d(new Quaternion(w, x, y, z));
-        //        return new Transform3d(translation, rotation);
-        //    }
         private fun encodeTransform(packet: Packet, transform: Transform3d) {
-            packet.encode(transform.translation.first) // x
-            packet.encode(transform.translation.second) // y
-            packet.encode(transform.translation.third) // z
-            packet.encode(transform.quat.w)
-            packet.encode(transform.quat.x)
-            packet.encode(transform.quat.y)
-            packet.encode(transform.quat.z)
+            packet.encode(transform.translation.x) // x
+            packet.encode(transform.translation.y) // y
+            packet.encode(transform.translation.z) // z
+            packet.encode(transform.rotation.quaternion.w)
+            packet.encode(transform.rotation.quaternion.x)
+            packet.encode(transform.rotation.quaternion.y)
+            packet.encode(transform.rotation.quaternion.z)
         }
     }
 }

@@ -16,13 +16,16 @@
 
 package com.team4099.hawkeye.computervision;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.HardwarePropertiesManager;
+import android.os.PowerManager;
 import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
@@ -55,6 +58,7 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.team4099.lib.phonedata.PhoneStatistics;
 import com.team4099.lib.photonvision.networking.HawkeyeResult;
 import com.team4099.lib.photonvision.networking.NTDataPublisher;
 import com.team4099.lib.photonvision.networking.HawkeyeConfig;
@@ -163,6 +167,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
 
   private NetworkTablesManager ntManager;
   private NTDataPublisher ntPublisher;
+  private PhoneStatistics phoneStatistics;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -198,6 +203,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     installRequested = false;
 
     this.ntManager = NetworkTablesManager.INSTANCE;
+    this.phoneStatistics = PhoneStatistics.INSTANCE;
 
     // TODO add a settings thing to control name
     this.ntPublisher = new NTDataPublisher(HawkeyeConfig.INSTANCE.getCameraName());
@@ -215,6 +221,14 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     }
 
     super.onDestroy();
+  }
+
+  @Override
+  protected void attachBaseContext(Context newBase) {
+    super.attachBaseContext(newBase);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      PhoneStatistics.powerManager = (PowerManager) newBase.getSystemService(Context.POWER_SERVICE);
+    }
   }
 
   @Override

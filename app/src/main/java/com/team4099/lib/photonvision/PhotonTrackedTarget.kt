@@ -9,9 +9,9 @@ import edu.wpi.first.math.geometry.Translation3d
 import java.util.*
 
 class PhotonTrackedTarget {
-    val yaw: Double
+    var yaw: Double
 
-    val pitch: Double
+    var pitch: Double
 
     val area: Double
 

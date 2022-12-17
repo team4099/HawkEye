@@ -11,6 +11,10 @@ class HawkeyeResult(val latencyMS: Double, targets: List<ApriltagPose>){
     init{
         trackedTargets = targets.map { PhotonTrackedTarget(it) }
         for (target in trackedTargets){
+            val eulerAngles = MathUtils.quaternionToEulerAngles(target.bestCameraToTarget.rotation.quaternion)
+            target.yaw = eulerAngles.yaw
+            target.pitch = eulerAngles.pitch
+
             val correctedBestPose = MathUtils.convertEDNPoseToNWUPose(
                 MathUtils.convertAprilTagOutputToEDN(target.bestCameraToTarget)
             )

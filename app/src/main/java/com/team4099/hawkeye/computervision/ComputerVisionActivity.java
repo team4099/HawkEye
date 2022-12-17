@@ -156,6 +156,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private Switch focusModeSwitch;
   private boolean isDisplayOn = false;
   private Switch displayModeSwitch;
+  private Switch landscapeModeSwitch;
 
   private final FrameTimeHelper renderFrameTimeHelper = new FrameTimeHelper();
   private final FrameTimeHelper cpuImageFrameTimeHelper = new FrameTimeHelper();
@@ -176,6 +177,10 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     focusModeSwitch.setOnCheckedChangeListener(this::onFocusModeChanged);
     displayModeSwitch = (Switch) findViewById(R.id.switch_display);
     displayModeSwitch.setOnCheckedChangeListener(this::isDisplayOnChanged);
+    landscapeModeSwitch = findViewById(R.id.landscape);
+    landscapeModeSwitch.setOnCheckedChangeListener(this::onOrientationChanged);
+
+
 
     cpuImageDisplayRotationHelper = new CpuImageDisplayRotationHelper(/*context=*/ this);
 
@@ -454,6 +459,14 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     boolean show = (cpuImageRenderer.getSplitterPosition() < 0.5f);
     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radio_camera_configs);
     radioGroup.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  private void onOrientationChanged(CompoundButton unusedButton, boolean orientation){
+    if (!(orientation)){
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    } else{
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
   }
 
   private void isDisplayOnChanged(CompoundButton unusedButton, boolean isChecked) {

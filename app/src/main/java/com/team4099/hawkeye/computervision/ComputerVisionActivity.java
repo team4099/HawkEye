@@ -26,7 +26,9 @@ import android.os.HardwarePropertiesManager;
 import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -164,7 +166,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    setContentView(R.layout.activity_main);
     surfaceView = findViewById(R.id.surfaceview);
     cameraIntrinsicsTextView = findViewById(R.id.camera_intrinsics_view);
     surfaceView = findViewById(R.id.surfaceview);

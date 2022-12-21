@@ -98,12 +98,4 @@ dependencies {
     // ARcore
     implementation 'com.google.ar:core:1.34.0'
 
-    // Add ntcore-jni for runtime. We are adding all supported platforms
-    // so that our application will work on all supported platforms.
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:windowsx86"
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:windowsx86-64"
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxx86-64"
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:linuxraspbian"
-//    implementation "edu.wpi.first.ntcore:ntcore-jni:VERSION:osxx86-64"
-
 }

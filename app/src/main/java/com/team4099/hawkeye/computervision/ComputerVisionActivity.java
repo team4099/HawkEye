@@ -19,6 +19,8 @@ package com.team4099.hawkeye.computervision;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -39,6 +41,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
 import com.google.ar.core.CameraConfig;
@@ -58,6 +62,7 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.team4099.lib.phonedata.CameraUtils;
 import com.team4099.lib.phonedata.PhoneStatistics;
 import com.team4099.lib.photonvision.networking.HawkeyeResult;
 import com.team4099.lib.photonvision.networking.NTDataPublisher;
@@ -161,6 +166,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private boolean isDisplayOn = false;
   private Switch displayModeSwitch;
   private Switch landscapeModeSwitch;
+  private boolean isLandscapeMode = false;
 
   private final FrameTimeHelper renderFrameTimeHelper = new FrameTimeHelper();
   private final FrameTimeHelper cpuImageFrameTimeHelper = new FrameTimeHelper();
@@ -168,6 +174,7 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   private NetworkTablesManager ntManager;
   private NTDataPublisher ntPublisher;
   private PhoneStatistics phoneStatistics;
+  private CameraUtils cameraUtils;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +214,13 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
 
     // TODO add a settings thing to control name
     this.ntPublisher = new NTDataPublisher(HawkeyeConfig.INSTANCE.getCameraName());
+
+    Context context = getApplicationContext();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      PhoneStatistics.powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    }
+
+    cameraUtils = new CameraUtils(context);
   }
 
   @Override
@@ -221,14 +235,6 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
     }
 
     super.onDestroy();
-  }
-
-  @Override
-  protected void attachBaseContext(Context newBase) {
-    super.attachBaseContext(newBase);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      PhoneStatistics.powerManager = (PowerManager) newBase.getSystemService(Context.POWER_SERVICE);
-    }
   }
 
   @Override
@@ -476,7 +482,9 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
   }
 
   private void onOrientationChanged(CompoundButton unusedButton, boolean orientation){
-    if (!(orientation)){
+    isLandscapeMode = orientation;
+
+    if (orientation){
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     } else{
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -535,7 +543,20 @@ public class ComputerVisionActivity extends AppCompatActivity implements GLSurfa
                   EnumSet.of(
                       CameraConfig.TargetFps.TARGET_FPS_30, CameraConfig.TargetFps.TARGET_FPS_60));
       List<CameraConfig> cameraConfigs = session.getSupportedCameraConfigs(cameraConfigFilter);
+      List<CameraConfig> cameraConfigsNoFilter = session.getSupportedCameraConfigs(new CameraConfigFilter(session));
       Log.i(TAG, "Size of supported CameraConfigs list is " + cameraConfigs.size());
+      for (int i = 0; i < cameraConfigs.size(); i++){
+        Log.i(TAG, "FPS range of Filtered config " + i + ": " + cameraConfigs.get(i).getFpsRange());
+      }
+
+      for (int i = 0; i < cameraConfigsNoFilter.size(); i++){
+        Log.i(TAG, "FPS range of unfiltered config " + i + ": " + cameraConfigsNoFilter.get(i).getFpsRange());
+      }
+
+
+      for (float a: cameraUtils.obtainIntrinsicMatrix()){
+        Log.i(TAG, "Intrinsic Value: " + a);
+      }
 
       // Determine the highest and lowest CPU resolutions.
       cpuLowResolutionCameraConfig =
